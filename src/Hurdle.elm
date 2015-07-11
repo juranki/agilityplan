@@ -31,11 +31,17 @@ showHurdle hurdle =
         Jump -> [ simpleLine { x = -20, y = -50 } { x = 20, y = -50 }
                 , simpleLine { x =   0, y = -50 } { x =  0, y =  50 }
                 , simpleLine { x = -20, y =  50 } { x = 20, y =  50 } ]
-        TireJump -> [ simpleLine { x = -20, y = -50 } { x = 20, y = -50 }
-                    , simpleLine { x = -20, y =  50 } { x = 20, y =  50 }
-                    , simpleCircle { x = 0, y = 0 } 20
-                    , simpleLine { x = 0, y = -20 } { x = 0, y = -50 }
-                    , simpleLine { x = 0, y = 20 } { x = 0, y = 50 } ]
+        TireJump ->
+            let
+                d = 25  -- tire diameter
+                w = 100 -- hurdle width
+                le = 40 -- line end length
+            in
+                [ simpleLine { x = -le/2, y = -w/2 } { x = le/2, y = -w/2 }
+                , simpleLine { x = -le/2, y =  w/2 } { x = le/2, y =  w/2 }
+                , simpleCircle { x = 0, y = 0 } d
+                , simpleLine { x = 0, y = -d } { x = 0, y = -w/2 }
+                , simpleLine { x = 0, y = d } { x = 0, y = w/2 } ]
         WeavePoles n ->
             let
                 dist = 50
