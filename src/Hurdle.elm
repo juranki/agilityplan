@@ -4,6 +4,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Dict exposing (Dict)
+import Html exposing (Html)
 
 type Hurdle =
     Jump | DoubleJump | TripleJump | PanelJump | LongJump | TireJump
@@ -17,10 +18,12 @@ type alias PositionedHurdle = {
 }
 
 type alias ID = Int
+type alias Grid = { w: Int, h: Int, density: Int }
 
 type alias Model = {
     hurdles: Dict ID PositionedHurdle,
-    nextId: ID
+    nextId: ID,
+    grid: Grid
 }
 
 type Action =
@@ -29,11 +32,12 @@ type Action =
     | Move ID Float Float
     | Rotate ID Float
 
-init: List PositionedHurdle -> Model
-init hurdles =
+init: Int -> Int -> List PositionedHurdle -> Model
+init fieldW fieldH hurdles =
     { hurdles = Dict.fromList
                     (List.map2 (,) [1 .. (List.length hurdles)] hurdles)
     , nextId = (List.length hurdles) + 1
+    , grid = { w = fieldW, h = fieldH, density = 200 }
     }
 
 update: Action -> Model -> Model
@@ -110,10 +114,42 @@ showPositionedHurdle addr id pHurdle =
       , onClick (Signal.message addr (Move id (pHurdle.pos.x + 10) (pHurdle.pos.y + 10))) ]
       (showHurdle pHurdle.hurdle)
 
-view: Signal.Address Action -> Model -> List Svg
+viewGrid: Grid -> Svg
+viewGrid grid =
+  let
+      w = grid.w
+      h = grid.h
+      d = grid.density
+      ww = w - (rem w d)
+      hh = h - (rem h d)
+      xRange = [1 .. (round ((toFloat ww) / 200))]
+      yRange = [1 .. (round ((toFloat hh) / 200))]
+      frame = rect [ x "0", y "0", width (toString w), height (toString h), stroke "#000", strokeWidth "3", fill "none"] []
+      verticalLines = List.map
+          (\xs ->
+              let x = toString (xs * d)
+              in
+                  line [ x1 x, y1 "0", x2 x, y2 (toString h), stroke "#d99" ] [])
+          xRange
+      horizontalLines = List.map
+          (\ys ->
+              let y = toString (ys * d)
+              in
+                  line [ x1 "0", y1 y, x2 (toString w), y2 y, stroke "#d99" ] [])
+          yRange
+  in
+      g [] ([frame] ++ verticalLines ++ horizontalLines)
+
+view: Signal.Address Action -> Model -> Html
 view addr model =
     let
         hurdles = Dict.toList model.hurdles
+        svgElements = List.map (\(id, hurdle) ->
+                        showPositionedHurdle addr id hurdle) hurdles
+        gridElement = viewGrid model.grid
+        vb = "0 0 " ++ (toString model.grid.w) ++ " " ++ (toString model.grid.h)
     in
-        List.map (\(id, hurdle) ->
-                    showPositionedHurdle addr id hurdle) hurdles
+        svg [ version "1.1", x "0", y "0", width "800", height "500", viewBox vb
+              , preserveAspectRatio "xMidYMid meet" ]
+              [ g [ transform "translate(4,4)"]
+               (gridElement :: svgElements)]
