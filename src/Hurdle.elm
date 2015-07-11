@@ -1,36 +1,11 @@
-module Hurdle (Model, Action(..), init, update, view, Hurdle(..), PositionedHurdle) where
+module Hurdle (init, update, view) where
 
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Dict exposing (Dict)
 import Html exposing (Html)
-
-type Hurdle =
-    Jump | DoubleJump | TripleJump | PanelJump | LongJump | TireJump
-    | Table | WeavePoles Int | AFrame | DogWalk | TeeterTooter
-    | Tunnel | CollapsedTunnel
-
-type alias Point = { x: Float, y: Float }
-
-type alias PositionedHurdle = {
-    hurdle: Hurdle, pos: Point, angle: Float
-}
-
-type alias ID = Int
-type alias Grid = { w: Int, h: Int, density: Int }
-
-type alias Model = {
-    hurdles: Dict ID PositionedHurdle,
-    nextId: ID,
-    grid: Grid
-}
-
-type Action =
-    Add PositionedHurdle
-    | Remove ID
-    | Move ID Float Float
-    | Rotate ID Float
+import Types exposing (..)
 
 init: Int -> Int -> List PositionedHurdle -> Model
 init fieldW fieldH hurdles =
@@ -107,12 +82,16 @@ showHurdle hurdle =
         _ -> []
 
 
-showPositionedHurdle: Signal.Address Action -> ID -> PositionedHurdle -> Svg
-showPositionedHurdle addr id pHurdle =
-    g [ transform ("translate(" ++ toString pHurdle.pos.x ++ "," ++ toString pHurdle.pos.y
-                   ++") rotate(" ++ toString pHurdle.angle ++ ")")
-      , onClick (Signal.message addr (Move id (pHurdle.pos.x + 10) (pHurdle.pos.y + 10))) ]
-      (showHurdle pHurdle.hurdle)
+viewPositionedHurdle: Signal.Address Action -> ID -> PositionedHurdle -> Svg
+viewPositionedHurdle addr id pHurdle =
+    let
+        [sx, sy, sangle] = List.map toString [ pHurdle.pos.x
+                                             , pHurdle.pos.y
+                                             , pHurdle.angle ]
+    in
+        g [ transform ("translate(" ++ sx ++ "," ++ sy ++") rotate(" ++ sangle ++ ")")
+          , onClick (Signal.message addr (Move id (pHurdle.pos.x + 10) (pHurdle.pos.y + 10))) ]
+          (showHurdle pHurdle.hurdle)
 
 viewGrid: Grid -> Svg
 viewGrid grid =
@@ -145,7 +124,7 @@ view addr model =
     let
         hurdles = Dict.toList model.hurdles
         svgElements = List.map (\(id, hurdle) ->
-                        showPositionedHurdle addr id hurdle) hurdles
+                        viewPositionedHurdle addr id hurdle) hurdles
         gridElement = viewGrid model.grid
         vb = "0 0 " ++ (toString model.grid.w) ++ " " ++ (toString model.grid.h)
     in
