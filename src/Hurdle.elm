@@ -2,6 +2,7 @@ module Hurdle (Model, Action(..), init, update, view, Hurdle(..), PositionedHurd
 
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import Svg.Events exposing (..)
 import Dict exposing (Dict)
 
 type Hurdle =
@@ -58,12 +59,12 @@ simpleLine: Point -> Point -> Svg
 simpleLine p1 p2 =
     line [ x1 (toString p1.x), y1 (toString p1.y)
          , x2 (toString p2.x), y2 (toString p2.y)
-         , stroke "#000", strokeWidth "2" ] []
+         , stroke "#000", strokeWidth "5" ] []
 
 simpleCircle: Point -> Float -> Svg
 simpleCircle p radius =
     circle [ cx (toString p.x), cy (toString p.y), r (toString radius)
-           , stroke "#000", fill "none", strokeWidth "2" ] []
+           , stroke "#000", fill "none", strokeWidth "5" ] []
 
 showHurdle: Hurdle -> List Svg
 showHurdle hurdle =
@@ -102,15 +103,17 @@ showHurdle hurdle =
         _ -> []
 
 
-showPositionedHurdle: PositionedHurdle -> Svg
-showPositionedHurdle pHurdle =
+showPositionedHurdle: Signal.Address Action -> ID -> PositionedHurdle -> Svg
+showPositionedHurdle addr id pHurdle =
     g [ transform ("translate(" ++ toString pHurdle.pos.x ++ "," ++ toString pHurdle.pos.y
-                   ++") rotate(" ++ toString pHurdle.angle ++ ")") ]
+                   ++") rotate(" ++ toString pHurdle.angle ++ ")")
+      , onClick (Signal.message addr (Move id (pHurdle.pos.x + 10) (pHurdle.pos.y + 10))) ]
       (showHurdle pHurdle.hurdle)
 
-view: Model -> List Svg
-view model =
+view: Signal.Address Action -> Model -> List Svg
+view addr model =
     let
-        hurdles = Dict.values model.hurdles
+        hurdles = Dict.toList model.hurdles
     in
-        List.map showPositionedHurdle hurdles
+        List.map (\(id, hurdle) ->
+                    showPositionedHurdle addr id hurdle) hurdles

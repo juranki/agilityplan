@@ -45,7 +45,7 @@ view addr model =
     [ svg [ version "1.1", x "0", y "0", width "800", height "500", viewBox "0 0 1508 908"
           , preserveAspectRatio "xMidYMid meet" ]
           [ g [ transform "translate(4,4)"]
-           ((grid 1500 900 200) :: (Hurdle.view model))]
+           ((grid 1500 900 200) :: (Hurdle.view addr model))]
     , Html.div []
         [ Html.button [Html.Events.onClick addr (Hurdle.Add { hurdle = Jump, pos = { x = 300, y = 400 }, angle = 0 })]
                       [Html.text "hello"]
