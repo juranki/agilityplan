@@ -126,7 +126,7 @@ view addr model =
         svgElements = List.map (\(id, hurdle) ->
                         viewPositionedHurdle addr id hurdle) hurdles
         gridElement = viewGrid model.grid
-        vb = "0 0 " ++ (toString model.grid.w) ++ " " ++ (toString model.grid.h)
+        vb = "0 0 " ++ (toString (model.grid.w + 8)) ++ " " ++ (toString (model.grid.h + 8))
     in
         svg [ version "1.1", x "0", y "0", width "800", height "500", viewBox vb
               , preserveAspectRatio "xMidYMid meet" ]
