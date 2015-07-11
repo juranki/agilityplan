@@ -37,14 +37,20 @@ showHurdle hurdle =
                     , simpleLine { x = 0, y = -20 } { x = 0, y = -50 }
                     , simpleLine { x = 0, y = 20 } { x = 0, y = 50 } ]
         WeavePoles n ->
-            (List.map (\i -> simpleLine { x = ((toFloat -(n-1)) * 50 / 2) + ((toFloat i) * 50), y = -5 }
-                                  { x = ((toFloat -(n-1)) * 50 / 2) + ((toFloat i) * 50), y = 5 })
-                [0 .. n-1])
-            ++ [
-            simpleLine { x = ((toFloat n-1) * 50 / 2), y = 0 } { x = ((toFloat -(n-1)) * 50 / 2), y = 0 }
+            let
+                dist = 50
+                startPos = (toFloat -(n-1)) * dist / 2
+                endPos = -startPos
+                poleSticks n =
+                    List.map (\i -> simpleLine { x = startPos + ((toFloat i) * dist), y = -5 }
+                                               { x = startPos + ((toFloat i) * dist), y = 5 })
+                             [0 .. n-1]
+            in
+                poleSticks n ++ [simpleLine { x = startPos, y = 0 } { x = endPos, y = 0 }]
 
-        ]
+
         _ -> []
+
 
 showPositionedHurdle: PositionedHurdle -> Svg
 showPositionedHurdle pHurdle =
