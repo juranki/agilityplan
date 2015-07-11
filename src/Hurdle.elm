@@ -18,12 +18,12 @@ simpleLine: Point -> Point -> Svg
 simpleLine p1 p2 =
     line [ x1 (toString p1.x), y1 (toString p1.y)
          , x2 (toString p2.x), y2 (toString p2.y)
-         , stroke "#000" ] []
+         , stroke "#000", strokeWidth "2" ] []
 
 simpleCircle: Point -> Float -> Svg
 simpleCircle p radius =
     circle [ cx (toString p.x), cy (toString p.y), r (toString radius)
-           , stroke "#000", fill "none" ] []
+           , stroke "#000", fill "none", strokeWidth "2" ] []
 
 showHurdle: Hurdle -> List Svg
 showHurdle hurdle =
