@@ -1,7 +1,8 @@
-module Hurdle (Hurdle(..), PositionedHurdle, showPositionedHurdle) where
+module Hurdle (Model, Action(..), init, update, view, Hurdle(..), PositionedHurdle) where
 
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import Dict exposing (Dict)
 
 type Hurdle =
     Jump | DoubleJump | TripleJump | PanelJump | LongJump | TireJump
@@ -11,8 +12,47 @@ type Hurdle =
 type alias Point = { x: Float, y: Float }
 
 type alias PositionedHurdle = {
-    hurdle: Hurdle, pos: Point, rotation: Float
+    hurdle: Hurdle, pos: Point, angle: Float
 }
+
+type alias ID = Int
+
+type alias Model = {
+    hurdles: Dict ID PositionedHurdle,
+    nextId: ID
+}
+
+type Action =
+    Add PositionedHurdle
+    | Remove ID
+    | Move ID Float Float
+    | Rotate ID Float
+
+init: List PositionedHurdle -> Model
+init hurdles =
+    { hurdles = Dict.fromList
+                    (List.map2 (,) [1 .. (List.length hurdles)] hurdles)
+    , nextId = (List.length hurdles) + 1
+    }
+
+update: Action -> Model -> Model
+update action model =
+    case action of
+        Add pHurdle ->
+            { model | hurdles <- Dict.insert model.nextId pHurdle model.hurdles
+                    , nextId <- model.nextId + 1 }
+        Remove id ->
+            { model | hurdles <- Dict.remove id model.hurdles }
+        Move id x y ->
+            { model | hurdles <-
+                        Dict.update id (\(Just pHurdle) ->
+                                        Just { pHurdle | pos <- { x = x, y = y }})
+                                    model.hurdles }
+        Rotate id deg ->
+            { model | hurdles <-
+                        Dict.update id (\(Just pHurdle) ->
+                                        Just { pHurdle | angle <- deg })
+                                    model.hurdles }
 
 simpleLine: Point -> Point -> Svg
 simpleLine p1 p2 =
@@ -65,5 +105,12 @@ showHurdle hurdle =
 showPositionedHurdle: PositionedHurdle -> Svg
 showPositionedHurdle pHurdle =
     g [ transform ("translate(" ++ toString pHurdle.pos.x ++ "," ++ toString pHurdle.pos.y
-                   ++") rotate(" ++ toString pHurdle.rotation ++ ")") ]
+                   ++") rotate(" ++ toString pHurdle.angle ++ ")") ]
       (showHurdle pHurdle.hurdle)
+
+view: Model -> List Svg
+view model =
+    let
+        hurdles = Dict.values model.hurdles
+    in
+        List.map showPositionedHurdle hurdles

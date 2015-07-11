@@ -1,7 +1,19 @@
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Html exposing (Html)
-import Hurdle exposing (..)
+import Html.Events
+import Hurdle exposing (Hurdle(..))
+import StartApp
+
+main = StartApp.start { model = model, view = view, update = Hurdle.update }
+
+model = Hurdle.init
+    [ { hurdle = Jump        , pos = { x = 100, y = 100 }, angle = 0 }
+    , { hurdle = Jump        , pos = { x = 500, y = 400 }, angle = 0 }
+    , { hurdle = TireJump    , pos = { x = 200, y = 100 }, angle = 0 }
+    , { hurdle = TireJump    , pos = { x = 100, y = 250 }, angle = 45 }
+    , { hurdle = WeavePoles 9, pos = { x = 500, y = 200 }, angle = 25 }
+    ]
 
 grid: Int -> Int -> Int -> Svg
 grid w h gr =
@@ -26,15 +38,16 @@ grid w h gr =
     in
         g [] ([frame] ++ verticalLines ++ horizontalLines)
 
-main : Html
-main =
-  svg [ version "1.1", x "0", y "0", width "100%", height "100%", viewBox "0 0 1508 908"
-      , preserveAspectRatio "xMidYMid meet" ]
-      [ g [ transform "translate(4,4)"]
-       [ grid 1500 900 200
-       , showPositionedHurdle { hurdle = Jump, pos = { x = 100, y = 100 }, rotation = 0 }
-       , showPositionedHurdle { hurdle = Jump, pos = { x = 500, y = 400 }, rotation = 0 }
-       , showPositionedHurdle { hurdle = TireJump, pos = { x = 200, y = 100 }, rotation = 0 }
-       , showPositionedHurdle { hurdle = TireJump, pos = { x = 100, y = 250 }, rotation = 45 }
-       , showPositionedHurdle { hurdle = WeavePoles 9, pos = { x = 500, y = 200 }, rotation = 25 }
-       ]]
+
+view : Signal.Address Hurdle.Action -> Hurdle.Model -> Html
+view addr model =
+    Html.div []
+    [ svg [ version "1.1", x "0", y "0", width "800", height "500", viewBox "0 0 1508 908"
+          , preserveAspectRatio "xMidYMid meet" ]
+          [ g [ transform "translate(4,4)"]
+           ((grid 1500 900 200) :: (Hurdle.view model))]
+    , Html.div []
+        [ Html.button [Html.Events.onClick addr (Hurdle.Add { hurdle = Jump, pos = { x = 300, y = 400 }, angle = 0 })]
+                      [Html.text "hello"]
+        ]
+    ]
