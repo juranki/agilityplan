@@ -28,9 +28,13 @@ simpleCircle p radius =
 showHurdle: Hurdle -> List Svg
 showHurdle hurdle =
     case hurdle of
-        Jump -> [ simpleLine { x = -20, y = -50 } { x = 20, y = -50 }
-                , simpleLine { x =   0, y = -50 } { x =  0, y =  50 }
-                , simpleLine { x = -20, y =  50 } { x = 20, y =  50 } ]
+        Jump ->
+            let w = 100 -- hurdle width
+                le = 40 -- line end length
+            in
+                [ simpleLine { x = -le/2, y = -w/2 } { x = le/2, y = -w/2 }
+                , simpleLine { x =   0, y = -w/2 } { x =  0, y =  w/2 }
+                , simpleLine { x = -le/2, y =  w/2 } { x = le/2, y =  w/2 } ]
         TireJump ->
             let
                 d = 25  -- tire diameter
