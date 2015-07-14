@@ -10,6 +10,7 @@ init fieldW fieldH hurdles =
                     (List.map2 (,) [1 .. (List.length hurdles)] hurdles)
     , nextId = (List.length hurdles) + 1
     , grid = { w = fieldW, h = fieldH, density = 200 }
+    , selectedHurdle = Nothing
     }
 
 update: Action -> Model -> Model
@@ -36,3 +37,5 @@ update action model =
                         Dict.update id (\(Just pHurdle) ->
                                         Just { pHurdle | angle <- deg })
                                     model.hurdles }
+        SelectHurdle id ->
+            { model | selectedHurdle <- Just id }

@@ -5,6 +5,12 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import FieldView
 
+viewSelection : Signal.Address Action -> Model -> Html
+viewSelection addr model =
+    case model.selectedHurdle of
+        Nothing -> span [] [text "no selection"]
+        Just id -> span [] [text ((toString id) ++ " selected")]
+
 view : Signal.Address Action -> Model -> Html
 view addr model =
     div []
@@ -17,4 +23,6 @@ view addr model =
          , button [onClick addr (Add (WeavePoles 10))]
                   [text "Weave Poles 10 poles)"]
         ]
+    , div []
+        [viewSelection addr model]
     ]

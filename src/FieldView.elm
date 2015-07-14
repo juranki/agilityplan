@@ -103,5 +103,5 @@ viewPositionedHurdle addr id pHurdle =
                                             , pHurdle.angle ]
    in
        g [ transform ("translate(" ++ sx ++ "," ++ sy ++") rotate(" ++ sangle ++ ")")
-         , onClick (Signal.message addr (Move id (pHurdle.pos.x + 10) (pHurdle.pos.y + 10))) ]
+         , onClick (Signal.message addr (SelectHurdle id)) ]
          (showHurdle pHurdle.hurdle)

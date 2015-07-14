@@ -31,9 +31,11 @@ type alias Grid = { w: Int
 type alias Model = { hurdles: Dict ID PositionedHurdle
                    , nextId: ID
                    , grid: Grid
+                   , selectedHurdle: Maybe ID
                    }
 
 type Action =  Add Hurdle
             | Remove ID
             | Move ID Float Float
             | Rotate ID Float
+            | SelectHurdle ID
