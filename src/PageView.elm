@@ -11,6 +11,10 @@ view addr model =
     [ FieldView.view addr model
     , div []
         [ button [onClick addr (Add Jump)]
-                 [text "hello"]
+                 [text "Jump"]
+         , button [onClick addr (Add TireJump)]
+                  [text "Tire Jump"]
+         , button [onClick addr (Add (WeavePoles 10))]
+                  [text "Weave Poles 10 poles)"]
         ]
     ]
