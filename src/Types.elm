@@ -33,7 +33,7 @@ type alias Model = { hurdles: Dict ID PositionedHurdle
                    , grid: Grid
                    }
 
-type Action =  Add PositionedHurdle
+type Action =  Add Hurdle
             | Remove ID
             | Move ID Float Float
             | Rotate ID Float

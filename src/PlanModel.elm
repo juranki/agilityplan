@@ -2,6 +2,7 @@ module PlanModel (init, update) where
 
 import Dict exposing (Dict)
 import Types exposing (..)
+import Debug
 
 init: Int -> Int -> List PositionedHurdle -> Model
 init fieldW fieldH hurdles =
@@ -14,9 +15,15 @@ init fieldW fieldH hurdles =
 update: Action -> Model -> Model
 update action model =
     case action of
-        Add pHurdle ->
-            { model | hurdles <- Dict.insert model.nextId pHurdle model.hurdles
-                    , nextId <- model.nextId + 1 }
+        Add hurdle ->
+            let
+                center = { x = (toFloat model.grid.w / 2), y = (toFloat model.grid.h / 2) }
+                pHurdle = { hurdle = hurdle
+                          , pos = center
+                          , angle = 0 }
+            in
+                { model | hurdles <- Dict.insert model.nextId pHurdle model.hurdles
+                        , nextId <- model.nextId + 1 }
         Remove id ->
             { model | hurdles <- Dict.remove id model.hurdles }
         Move id x y ->

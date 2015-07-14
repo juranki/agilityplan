@@ -10,7 +10,7 @@ view addr model =
     div []
     [ FieldView.view addr model
     , div []
-        [ button [onClick addr (Add { hurdle = Jump, pos = { x = 300, y = 400 }, angle = 0 })]
+        [ button [onClick addr (Add Jump)]
                  [text "hello"]
         ]
     ]
