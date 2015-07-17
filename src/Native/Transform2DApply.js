@@ -1,12 +1,12 @@
 Elm.Native.Transform2DApply = {};
 Elm.Native.Transform2DApply.make = function(localRuntime) {
 
-	localRuntime.Native = localRuntime.Native || {};
-	localRuntime.Native.Transform2DApply = localRuntime.Native.Transform2DApply || {};
-	if (localRuntime.Native.Transform2DApply.values)
-	{
-		return localRuntime.Native.Transform2DApply.values;
-	}
+    localRuntime.Native = localRuntime.Native || {};
+    localRuntime.Native.Transform2DApply = localRuntime.Native.Transform2DApply || {};
+    if (localRuntime.Native.Transform2DApply.values)
+    {
+        return localRuntime.Native.Transform2DApply.values;
+    }
 
     var Utils = Elm.Native.Utils.make(localRuntime);
 
@@ -17,7 +17,6 @@ Elm.Native.Transform2DApply.make = function(localRuntime) {
     }
 
     return localRuntime.Native.Transform2DApply.values = {
-		apply:F3(apply)
-
-	};
+        apply:F3(apply)
+    };
 };
