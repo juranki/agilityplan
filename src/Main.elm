@@ -185,6 +185,7 @@ view wm =
                                     [ button (Signal.message winAction.address (AddHurdle Jump (x,y))) "Add Jump"
                                     , button (Signal.message winAction.address (AddHurdle TireJump (x,y))) "Add tire jump"
                                     , button (Signal.message winAction.address (AddHurdle (WeavePoles 10) (x,y))) "Add weave poles"
+                                    , button (Signal.message winAction.address (AddHurdle (Tunnel 500) (x,y))) "Add tunnel (5m)"
                                     ])]
                 Nothing -> []
     in
