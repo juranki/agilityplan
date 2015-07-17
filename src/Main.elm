@@ -1,5 +1,4 @@
-import AgilityPlan
-import Types exposing (..)
+import AgilityPlan exposing (Action(..), Model)
 import Hurdle exposing (Hurdle(..))
 import Window
 import Graphics.Collage exposing (..)
@@ -12,7 +11,6 @@ import Transform2D as T2D
 import Transform2DApply exposing (applyTransform2D)
 import Debug
 
-import FieldView
 
 model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
             [ Add Jump
@@ -39,18 +37,7 @@ fieldHover = Signal.mailbox ()
 clickTransform : Signal.Mailbox T2D.Transform2D
 clickTransform = Signal.mailbox T2D.identity
 
-grid : Float -> Float -> Float -> List Form
-grid w h d =
-    let
-        xRange = List.map toFloat [0 .. ((round w) // (round d))]
-        yRange = List.map toFloat [0 .. ((round h) // (round d))]
-        verticalPaths = List.map (\xs -> [ (xs * d, 0), (xs * d, h) ]) xRange
-        horizontalPaths = List.map (\ys -> [ (0, ys *d), (w, ys * d) ]) yRange
-        ends = [ [ (w,0), (w,h) ], [ (0,h), (w,h) ] ]
-    in
-        verticalPaths ++ horizontalPaths ++ ends
-            |> List.map path
-            |> List.map (traced (solid black))
+
 
 fit : Model -> (Int, Int, Int) -> List Form -> (Form, T2D.Transform2D)
 fit model (w, h, top) s =
@@ -82,9 +69,8 @@ view model (w, h) m =
         flow down
             [ pos
             , let
-                gridlines = grid model.grid.w model.grid.h model.grid.density
-                hurdles = FieldView.view model
-                (form, t) =  fit model (w, h, (heightOf pos)) (gridlines ++ hurdles)
+                field = AgilityPlan.view model
+                (form, t) =  fit model (w, h, (heightOf pos)) field
               in
                 clickable (Signal.message fieldClick.address t)
                     (collage w (h - (heightOf pos)) [form])

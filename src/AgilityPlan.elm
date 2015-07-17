@@ -1,9 +1,29 @@
-module AgilityPlan (init, update) where
+module AgilityPlan (Action(..), Model, init, update, view) where
 
 import Dict exposing (Dict)
-import Types exposing (..)
-import Debug
 import Transform2D
+import Hurdle exposing (Hurdle)
+import PositionedHurdle exposing (PositionedHurdle)
+import Dict exposing (Dict)
+import Graphics.Collage exposing (..)
+import Color exposing (..)
+
+type alias ID = Int
+type alias Grid = { w: Float
+                  , h: Float
+                  , density: Float }
+
+type alias Model = { hurdles: Dict ID PositionedHurdle
+                   , nextId: ID
+                   , grid: Grid
+                   , selectedHurdle: Maybe ID
+                   }
+
+type Action = Add Hurdle
+            | Remove ID
+            | SelectHurdle ID
+            | Move (Int, Int)
+
 
 init: Float -> Float -> Model
 init fieldW fieldH =
@@ -57,3 +77,26 @@ update action model =
                                                         (Transform2D.translation -nx -ny)
                                                })
                         model.hurdles}
+
+grid : Float -> Float -> Float -> List Form
+grid w h d =
+    let
+        xRange = List.map toFloat [0 .. ((round w) // (round d))]
+        yRange = List.map toFloat [0 .. ((round h) // (round d))]
+        verticalPaths = List.map (\xs -> [ (xs * d, 0), (xs * d, h) ]) xRange
+        horizontalPaths = List.map (\ys -> [ (0, ys *d), (w, ys * d) ]) yRange
+        ends = [ [ (w,0), (w,h) ], [ (0,h), (w,h) ] ]
+    in
+        verticalPaths ++ horizontalPaths ++ ends
+            |> List.map path
+            |> List.map (traced (solid black))
+
+view: Model -> List Form
+view model =
+    let
+        hurdles = Dict.toList model.hurdles
+        gridforms = grid model.grid.w model.grid.h model.grid.density
+        hurdleforms = List.map (\(_, hurdle) ->
+                        PositionedHurdle.view hurdle) hurdles
+    in
+        gridforms ++ hurdleforms
