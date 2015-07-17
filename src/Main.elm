@@ -70,8 +70,8 @@ update action model =
                                 model.model }
         Keypress s ->
             {model | model <-
-                if  | s == "'z'" -> AgilityPlan.update (AgilityPlan.Rotate -10) model.model
-                    | s == "'x'" -> AgilityPlan.update (AgilityPlan.Rotate 10) model.model
+                if  | s == "'z'" -> AgilityPlan.update (AgilityPlan.Rotate 10) model.model
+                    | s == "'x'" -> AgilityPlan.update (AgilityPlan.Rotate -10) model.model
                     | otherwise -> model.model
                 }
 
