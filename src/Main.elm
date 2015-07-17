@@ -4,13 +4,10 @@ import Window
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Graphics.Input exposing (..)
-import Color exposing (..)
 import Mouse
 import Signal
 import Transform2D as T2D
 import Transform2DApply exposing (applyTransform2D)
-import Debug
-
 
 model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
             [ Add Jump
