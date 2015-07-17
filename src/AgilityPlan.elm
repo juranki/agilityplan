@@ -4,9 +4,9 @@ import Dict exposing (Dict)
 import Transform2D
 import Hurdle exposing (Hurdle)
 import PositionedHurdle exposing (PositionedHurdle)
-import Dict exposing (Dict)
 import Graphics.Collage exposing (..)
 import Color exposing (..)
+import Debug
 
 type alias ID = Int
 type alias Grid = { w: Float
@@ -22,7 +22,10 @@ type alias Model = { hurdles: Dict ID PositionedHurdle
 type Action = Add Hurdle
             | Remove ID
             | SelectHurdle ID
-            | Move (Int, Int)
+            | Move (Float, Float)
+            | Click (Float, Float)
+            | Arrow { x:Int, y:Int }
+            | Rotate Float
 
 
 init: Float -> Float -> Model
@@ -65,8 +68,8 @@ update action model =
                     { model | hurdles <-
                         Dict.update id (\(Just pHurdle) ->
                             let
-                                nx = toFloat x
-                                ny = toFloat y
+                                nx =  x
+                                ny =  y
                             in
                                 Just { pHurdle | pos <- (nx, ny)
                                                , t <- Transform2D.multiply
@@ -77,6 +80,37 @@ update action model =
                                                         (Transform2D.translation -nx -ny)
                                                })
                         model.hurdles}
+                Nothing -> model
+        Rotate diff ->
+            case model.selectedHurdle of
+                Just id ->
+                    { model | hurdles <-
+                        Dict.update id (\(Just pHurdle) ->
+                            let
+                                angle =  pHurdle.angle + diff
+                                (nx, ny) = pHurdle.pos
+                            in
+                                Just { pHurdle | angle <- angle
+                                               , t <- Transform2D.multiply
+                                                        (Transform2D.translation nx ny)
+                                                        (Transform2D.rotation (degrees angle))
+                                               , t' <- Transform2D.multiply
+                                                        (Transform2D.rotation (degrees -angle))
+                                                        (Transform2D.translation -nx -ny)
+                                               })
+                        model.hurdles}
+                Nothing -> model
+        Arrow d ->
+            case model.selectedHurdle of
+                Just id ->
+                    let
+                        (Just h) = Dict.get id model.hurdles
+                        (x,y) = h.pos
+                    in
+                        model |> update (Move ( x + (toFloat d.x) * 50, y + (toFloat d.y) * 50 ))
+                Nothing -> model
+
+
 
 grid : Float -> Float -> Float -> List Form
 grid w h d =

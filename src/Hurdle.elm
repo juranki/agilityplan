@@ -1,4 +1,4 @@
-module Hurdle(Hurdle(..), view) where
+module Hurdle(Hurdle(..), view, hitTest) where
 
 import Graphics.Collage exposing (..)
 
@@ -61,3 +61,18 @@ view hurdle =
 
 
        _ -> []
+
+hitTest : (Float, Float) -> Hurdle -> Bool
+hitTest (x, y) hurdle =
+    case hurdle of
+        Jump ->
+            if ((abs x) < 20) && ((abs y) < 50) then True else False
+        TireJump ->
+            if ((abs x) < 20) && ((abs y) < 50) then True else False
+        WeavePoles n ->
+            let
+                dist = 50
+                startPos = (toFloat (n-1)) * dist / 2
+            in
+                if ((abs x) < startPos) && ((abs y) < 5) then True else False
+        _ -> False
