@@ -1,4 +1,4 @@
-import PlanModel
+import AgilityPlan
 import Types exposing (..)
 import Hurdle exposing (Hurdle(..))
 import Window
@@ -14,7 +14,7 @@ import Debug
 
 import FieldView
 
-model = List.foldl PlanModel.update (PlanModel.init 2000 1000)
+model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
             [ Add Jump
             , Move (100, 100)
             , Add TireJump

@@ -1,4 +1,4 @@
-module PlanModel (init, update) where
+module AgilityPlan (init, update) where
 
 import Dict exposing (Dict)
 import Types exposing (..)
