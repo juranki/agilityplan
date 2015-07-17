@@ -1,32 +1,13 @@
 module Types (..) where
 
+import Hurdle exposing (Hurdle)
+import PositionedHurdle exposing (PositionedHurdle)
 import Dict exposing (Dict)
 
-type Hurdle = Jump
-            | DoubleJump
-            | TripleJump
-            | PanelJump
-            | LongJump
-            | TireJump
-            | Table
-            | WeavePoles Int
-            | AFrame
-            | DogWalk
-            | TeeterTooter
-            | Tunnel
-            | CollapsedTunnel
-
-type alias Point = { x: Float
-                   , y: Float }
-
-type alias PositionedHurdle = { hurdle: Hurdle
-                              , pos: Point
-                              , angle: Float
-                              }
 type alias ID = Int
-type alias Grid = { w: Int
-                  , h: Int
-                  , density: Int }
+type alias Grid = { w: Float
+                  , h: Float
+                  , density: Float }
 
 type alias Model = { hurdles: Dict ID PositionedHurdle
                    , nextId: ID
@@ -34,8 +15,7 @@ type alias Model = { hurdles: Dict ID PositionedHurdle
                    , selectedHurdle: Maybe ID
                    }
 
-type Action =  Add Hurdle
+type Action = Add Hurdle
             | Remove ID
-            | Move ID Float Float
-            | Rotate ID Float
             | SelectHurdle ID
+            | Move (Int, Int)
