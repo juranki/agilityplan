@@ -19,12 +19,14 @@ type alias WindowModel =
     , windowSize : (Int, Int)
     , t : T2D.Transform2D
     , t' : T2D.Transform2D
+    , dropdown : Maybe (Int, Int)
     }
 
 type WindowAction = WindowSize (Int, Int)
                   | Click (Int, Int)
                   | Arrow { x:Int, y:Int }
                   | Keypress String
+                  | AddHurdle Hurdle (Int, Int)
 
 init : WindowModel
 init =
@@ -38,6 +40,7 @@ init =
     , windowSize = (1000, 1000)
     , t = T2D.identity
     , t' = T2D.identity
+    , dropdown = Nothing
     }
 
 update : WindowAction -> WindowModel -> WindowModel
@@ -59,11 +62,12 @@ update action model =
                     (List.filter (PositionedHurdle.hitTest p) (Dict.toList model.model.hurdles))
             in
                 case hurdle of
-                    Nothing -> model
+                    Nothing -> { model | dropdown <- Just (x,y) }
                     Just (id, _) ->
                         { model | model <- AgilityPlan.update
                                             (AgilityPlan.SelectHurdle id)
-                                            model.model }
+                                            model.model
+                                , dropdown <- Nothing }
         Arrow direction ->
             { model | model <- AgilityPlan.update
                                 (AgilityPlan.Arrow direction)
@@ -72,8 +76,18 @@ update action model =
             {model | model <-
                 if  | s == "'z'" -> AgilityPlan.update (AgilityPlan.Rotate 10) model.model
                     | s == "'x'" -> AgilityPlan.update (AgilityPlan.Rotate -10) model.model
+                    | s == "'d'" -> AgilityPlan.update (AgilityPlan.Remove) model.model
                     | otherwise -> model.model
                 }
+        AddHurdle hurdle (x,y) ->
+            let
+                [x',y'] = List.map toFloat [x,y]
+                p = applyTransform2D model.t' x' y'
+            in
+                { model | model <- List.foldl AgilityPlan.update model.model
+                            [ AgilityPlan.Add hurdle
+                            , AgilityPlan.Move p ]
+                        , dropdown <- Nothing }
 
 model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
             [ Add Jump
@@ -94,13 +108,20 @@ keySignals =
 main : Signal Element
 main =
     let
-        actions = Signal.mergeMany [arrowSignals, windowSignals, fieldClicks, keySignals]
+        actions = Signal.mergeMany [ arrowSignals
+                                   , windowSignals
+                                   , fieldClicks
+                                   , keySignals
+                                   , winAction.signal ]
         updateLoop = Signal.foldp update init actions
     in
         Signal.map view updateLoop
 
 fieldClick : Signal.Mailbox ()
 fieldClick = Signal.mailbox ()
+
+winAction : Signal.Mailbox WindowAction
+winAction = Signal.mailbox (Keypress "")
 
 fieldClicks =
     Signal.map
@@ -157,9 +178,18 @@ view wm =
         model = wm.model
         pos = show model.selectedHurdle
         (w, h) = wm.windowSize
+        dt = case wm.dropdown of
+                Just (x,y) -> [ container w h
+                                (middleAt (absolute x) (absolute y))
+                                (flow down
+                                    [ button (Signal.message winAction.address (AddHurdle Jump (x,y))) "Add Jump"
+                                    , button (Signal.message winAction.address (AddHurdle TireJump (x,y))) "Add tire jump"
+                                    , button (Signal.message winAction.address (AddHurdle (WeavePoles 10) (x,y))) "Add weave poles"
+                                    ])]
+                Nothing -> []
     in
         layers
-            [ pos
+            ([ pos
             , let
                 hpos = 0 -- heightOf pos
                 field = AgilityPlan.view model
@@ -168,4 +198,4 @@ view wm =
               in
                 clickable (Signal.message fieldClick.address ())
                     (collage w h [form])
-            ]
+            ] ++ dt)

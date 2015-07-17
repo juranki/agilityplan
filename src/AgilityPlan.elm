@@ -20,7 +20,7 @@ type alias Model = { hurdles: Dict ID PositionedHurdle
                    }
 
 type Action = Add Hurdle
-            | Remove ID
+            | Remove
             | SelectHurdle ID
             | Move (Float, Float)
             | Click (Float, Float)
@@ -53,8 +53,11 @@ update action model =
                 { model | hurdles <- Dict.insert model.nextId pHurdle model.hurdles
                         , nextId <- model.nextId + 1 }
                             |> update (SelectHurdle newId)
-        Remove id ->
-            { model | hurdles <- Dict.remove id model.hurdles }
+        Remove ->
+            case model.selectedHurdle of
+                Just id -> { model | hurdles <- Dict.remove id model.hurdles
+                                   , selectedHurdle <- Nothing}
+                Nothing -> model
 --        Rotate id deg ->
 --            { model | hurdles <-
 --                        Dict.update id (\(Just pHurdle) ->
