@@ -20,17 +20,15 @@ view: Hurdle -> List Form
 view hurdle =
     case hurdle of
         Jump ->
-            let w = 100 -- hurdle width
-                le = 40 -- line end length
-                paths = [ [ (-le/2, -w/2), (le/2, -w/2) ]
-                        , [ (0,     -w/2), (0,    w/2 ) ]
-                        , [ (-le/2, w/2 ), (le/2, w/2) ]
-                ]
-            in
-                paths |> List.map path
-                      |> List.map (traced {defaultLine | cap <- Padded
+            let w = 90 -- hurdle width
+                path = traced {defaultLine | cap <- Padded, width <- 4}
+                        [ (0, -w/2), (0, w/2 ) ]
+                supports = [ rect 10 40,  rect 10 40 ]
+                    |> List.map (outlined {defaultLine | cap <- Padded
                                                        , width <- 4})
-
+                supports'  = List.map2 moveY [-65,65] supports
+            in
+                path :: supports'
         TireJump ->
             let
                 d = 25  -- tire diameter
@@ -81,7 +79,7 @@ hitTest : (Float, Float) -> Hurdle -> Bool
 hitTest (x, y) hurdle =
     case hurdle of
         Jump ->
-            if ((abs x) < 20) && ((abs y) < 50) then True else False
+            if ((abs x) < 10) && ((abs y) < 85) then True else False
         TireJump ->
             if ((abs x) < 20) && ((abs y) < 50) then True else False
         WeavePoles n ->
