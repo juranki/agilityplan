@@ -110,7 +110,7 @@ update action model =
                         (Just h) = Dict.get id model.hurdles
                         (x,y) = h.pos
                     in
-                        model |> update (Move ( x + (toFloat d.x) * 50, y + (toFloat d.y) * 50 ))
+                        model |> update (Move ( x + (toFloat d.x) * 10, y + (toFloat d.y) * 10 ))
                 Nothing -> model
 
 

@@ -13,6 +13,7 @@ import Transform2DApply exposing (applyTransform2D)
 import Debug
 import Dict exposing (Dict)
 import Char
+import Time
 
 type alias WindowModel =
     { model : AgilityPlan.Model
@@ -101,7 +102,9 @@ windowSignals =
     Signal.map (\w -> WindowSize w) Window.dimensions
 
 arrowSignals =
-    Signal.map Arrow Keyboard.arrows
+    Signal.map Arrow
+        (Signal.filter (\d -> (d.x /= 0) || (d.y /= 0)) {x=0,y=0}
+            (Signal.sampleOn (Time.fps 30) Keyboard.arrows))
 keySignals =
     Signal.map (\i -> Debug.watch "key" (Keypress (toString (Char.fromCode i)))) Keyboard.presses
 
