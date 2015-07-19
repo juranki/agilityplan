@@ -185,10 +185,11 @@ view wm =
                 Just (x,y) -> [ container w h
                                 (middleAt (absolute x) (absolute y))
                                 (flow down
-                                    [ button (Signal.message winAction.address (AddHurdle Jump (x,y))) "Add Jump"
-                                    , button (Signal.message winAction.address (AddHurdle TireJump (x,y))) "Add tire jump"
-                                    , button (Signal.message winAction.address (AddHurdle (WeavePoles 10) (x,y))) "Add weave poles"
-                                    , button (Signal.message winAction.address (AddHurdle (Tunnel 500) (x,y))) "Add tunnel (5m)"
+                                    [ button (Signal.message winAction.address (AddHurdle Jump (x,y))) "Jump"
+                                    , button (Signal.message winAction.address (AddHurdle TireJump (x,y))) "Tire jump"
+                                    , button (Signal.message winAction.address (AddHurdle (WeavePoles 10) (x,y))) "Weave poles"
+                                    , button (Signal.message winAction.address (AddHurdle (Tunnel 450) (x,y))) "Tunnel"
+                                    , button (Signal.message winAction.address (AddHurdle (CurvedTunnel 120) (x,y))) "Curved tunnel"
                                     ])]
                 Nothing -> []
     in

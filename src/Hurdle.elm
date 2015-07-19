@@ -14,6 +14,7 @@ type Hurdle = Jump
             | DogWalk
             | TeeterTooter
             | Tunnel Float
+            | CurvedTunnel Float
             | CollapsedTunnel
 
 view: Hurdle -> List Form
@@ -72,8 +73,22 @@ view hurdle =
 
             in
                 lines ++ ovals'
-
+        CurvedTunnel r ->
+            let
+                thetas = List.map (\a -> degrees (a*10)) [0 .. 18]
+                innerPath = List.map (circlePoint (r - 30)) thetas
+                outerPath = List.map (circlePoint (r + 30)) thetas
+                lines = [innerPath, outerPath]
+                    |> List.map (traced {defaultLine | cap <- Padded
+                                                     , width <- 4})
+                ovals = [oval 60 20, oval 60 20]
+                    |> List.map (outlined {defaultLine | cap <- Padded
+                                                       , width <- 4})
+                ovals' = List.map2 moveX [-r, r] ovals
+            in
+                lines ++ ovals'
         _ -> []
+
 
 hitTest : (Float, Float) -> Hurdle -> Bool
 hitTest (x, y) hurdle =
@@ -90,4 +105,11 @@ hitTest (x, y) hurdle =
                 if ((abs x) < startPos) && ((abs y) < 5) then True else False
         Tunnel m ->
             if ((abs x) < (m/2)) && ((abs y) < 30) then True else False
+        CurvedTunnel r ->
+            let r' = sqrt ((x^2) + (y^2))
+            in
+                (y >= 0) && ((abs (r - r')) < 30)
         _ -> False
+
+circlePoint : Float -> Float -> (Float, Float)
+circlePoint r theta = (r * (cos theta), r * (sin theta))
