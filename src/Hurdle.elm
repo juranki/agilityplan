@@ -94,17 +94,17 @@ hitTest : (Float, Float) -> Hurdle -> Bool
 hitTest (x, y) hurdle =
     case hurdle of
         Jump ->
-            if ((abs x) < 10) && ((abs y) < 85) then True else False
+            ((abs x) < 10) && ((abs y) < 85)
         TireJump ->
-            if ((abs x) < 20) && ((abs y) < 50) then True else False
+            ((abs x) < 20) && ((abs y) < 50)
         WeavePoles n ->
             let
                 dist = 50
                 startPos = (toFloat (n-1)) * dist / 2
             in
-                if ((abs x) < startPos) && ((abs y) < 5) then True else False
+                ((abs x) < startPos) && ((abs y) < 5)
         Tunnel m ->
-            if ((abs x) < (m/2)) && ((abs y) < 30) then True else False
+            ((abs x) < (m/2)) && ((abs y) < 30)
         CurvedTunnel r ->
             let r' = sqrt ((x^2) + (y^2))
             in
