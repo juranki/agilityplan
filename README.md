@@ -12,4 +12,4 @@ A exercise project for learning [Elm](http://elm-lang.org/)
     - 'x' - rotate selected hurdle clockwise
     - arrows - move selected hurdle
 
-You can try it [here](http://juranki.github.io/agilityplan/)
+You can try it [here](http://juranki.github.io/agilityplan/) (works best with Chrome)
