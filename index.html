@@ -2952,6 +2952,12 @@ Elm.Hurdle.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
+   var circlePoint = F2(function (r,
+   theta) {
+      return {ctor: "_Tuple2"
+             ,_0: r * $Basics.cos(theta)
+             ,_1: r * $Basics.sin(theta)};
+   });
    var hitTest = F2(function (_v0,
    hurdle) {
       return function () {
@@ -2959,36 +2965,82 @@ Elm.Hurdle.make = function (_elm) {
          {case "_Tuple2":
             return function () {
                  switch (hurdle.ctor)
-                 {case "Jump":
+                 {case "CurvedTunnel":
+                    return function () {
+                         var r$ = $Basics.sqrt(Math.pow(_v0._0,
+                         2) + Math.pow(_v0._1,2));
+                         return _U.cmp(_v0._1,
+                         0) > -1 && _U.cmp($Basics.abs(hurdle._0 - r$),
+                         30) < 0;
+                      }();
+                    case "Jump":
                     return _U.cmp($Basics.abs(_v0._0),
                       10) < 0 && _U.cmp($Basics.abs(_v0._1),
-                      85) < 0 ? true : false;
+                      85) < 0;
                     case "TireJump":
                     return _U.cmp($Basics.abs(_v0._0),
                       20) < 0 && _U.cmp($Basics.abs(_v0._1),
-                      50) < 0 ? true : false;
+                      50) < 0;
                     case "Tunnel":
                     return _U.cmp($Basics.abs(_v0._0),
                       hurdle._0 / 2) < 0 && _U.cmp($Basics.abs(_v0._1),
-                      30) < 0 ? true : false;
+                      30) < 0;
                     case "WeavePoles":
                     return function () {
                          var dist = 50;
                          var startPos = $Basics.toFloat(hurdle._0 - 1) * dist / 2;
                          return _U.cmp($Basics.abs(_v0._0),
                          startPos) < 0 && _U.cmp($Basics.abs(_v0._1),
-                         5) < 0 ? true : false;
+                         5) < 0;
                       }();}
                  return false;
               }();}
          _U.badCase($moduleName,
-         "between lines 80 and 93");
+         "between lines 95 and 112");
       }();
    });
    var view = function (hurdle) {
       return function () {
          switch (hurdle.ctor)
-         {case "Jump":
+         {case "CurvedTunnel":
+            return function () {
+                 var ovals = $List.map($Graphics$Collage.outlined(_U.replace([["cap"
+                                                                              ,$Graphics$Collage.Padded]
+                                                                             ,["width"
+                                                                              ,4]],
+                 $Graphics$Collage.defaultLine)))(_L.fromArray([A2($Graphics$Collage.oval,
+                                                               60,
+                                                               20)
+                                                               ,A2($Graphics$Collage.oval,
+                                                               60,
+                                                               20)]));
+                 var ovals$ = A3($List.map2,
+                 $Graphics$Collage.moveX,
+                 _L.fromArray([0 - hurdle._0
+                              ,hurdle._0]),
+                 ovals);
+                 var thetas = A2($List.map,
+                 function (a) {
+                    return $Basics.degrees(a * 10);
+                 },
+                 _L.range(0,18));
+                 var innerPath = A2($List.map,
+                 circlePoint(hurdle._0 - 30),
+                 thetas);
+                 var outerPath = A2($List.map,
+                 circlePoint(hurdle._0 + 30),
+                 thetas);
+                 var lines = $List.map($Graphics$Collage.traced(_U.replace([["cap"
+                                                                            ,$Graphics$Collage.Padded]
+                                                                           ,["width"
+                                                                            ,4]],
+                 $Graphics$Collage.defaultLine)))(_L.fromArray([innerPath
+                                                               ,outerPath]));
+                 return A2($Basics._op["++"],
+                 lines,
+                 ovals$);
+              }();
+            case "Jump":
             return function () {
                  var supports = $List.map($Graphics$Collage.outlined(_U.replace([["cap"
                                                                                  ,$Graphics$Collage.Padded]
@@ -3134,6 +3186,10 @@ Elm.Hurdle.make = function (_elm) {
       }();
    };
    var CollapsedTunnel = {ctor: "CollapsedTunnel"};
+   var CurvedTunnel = function (a) {
+      return {ctor: "CurvedTunnel"
+             ,_0: a};
+   };
    var Tunnel = function (a) {
       return {ctor: "Tunnel"
              ,_0: a};
@@ -3167,6 +3223,7 @@ Elm.Hurdle.make = function (_elm) {
                         ,DogWalk: DogWalk
                         ,TeeterTooter: TeeterTooter
                         ,Tunnel: Tunnel
+                        ,CurvedTunnel: CurvedTunnel
                         ,CollapsedTunnel: CollapsedTunnel};
    return _elm.Hurdle.values;
 };Elm.Keyboard = Elm.Keyboard || {};
@@ -4085,7 +4142,7 @@ Elm.Main.make = function (_elm) {
                                    {ctor: "_Tuple2"
                                    ,_0: _v65._0._0
                                    ,_1: _v65._0._1})),
-                                   "Add Jump")
+                                   "Jump")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
                                    winAction.address,
@@ -4094,7 +4151,7 @@ Elm.Main.make = function (_elm) {
                                    {ctor: "_Tuple2"
                                    ,_0: _v65._0._0
                                    ,_1: _v65._0._1})),
-                                   "Add tire jump")
+                                   "Tire jump")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
                                    winAction.address,
@@ -4103,21 +4160,30 @@ Elm.Main.make = function (_elm) {
                                    {ctor: "_Tuple2"
                                    ,_0: _v65._0._0
                                    ,_1: _v65._0._1})),
-                                   "Add weave poles")
+                                   "Weave poles")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
                                    winAction.address,
                                    A2(AddHurdle,
-                                   $Hurdle.Tunnel(500),
+                                   $Hurdle.Tunnel(450),
                                    {ctor: "_Tuple2"
                                    ,_0: _v65._0._0
                                    ,_1: _v65._0._1})),
-                                   "Add tunnel (5m)")])))]);}
+                                   "Tunnel")
+                                   ,A2($Graphics$Input.button,
+                                   A2($Signal.message,
+                                   winAction.address,
+                                   A2(AddHurdle,
+                                   $Hurdle.CurvedTunnel(120),
+                                   {ctor: "_Tuple2"
+                                   ,_0: _v65._0._0
+                                   ,_1: _v65._0._1})),
+                                   "Curved tunnel")])))]);}
                  break;
                case "Nothing":
                return _L.fromArray([]);}
             _U.badCase($moduleName,
-            "between lines 184 and 194");
+            "between lines 184 and 195");
          }();
          var model = wm.model;
          var pos = $Graphics$Element.show(model.selectedHurdle);
