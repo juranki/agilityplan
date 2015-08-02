@@ -20,6 +20,7 @@ Elm.AgilityPlan.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $PositionedHurdle = Elm.PositionedHurdle.make(_elm),
    $Result = Elm.Result.make(_elm),
+   $Set = Elm.Set.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Transform2D = Elm.Transform2D.make(_elm);
    var grid = F3(function (w,h,d) {
@@ -83,7 +84,7 @@ Elm.AgilityPlan.make = function (_elm) {
                {case "_Tuple2":
                   return $PositionedHurdle.view(_v0._1);}
                _U.badCase($moduleName,
-               "on line 137, column 25 to 53");
+               "on line 152, column 25 to 53");
             }();
          },
          hurdles);
@@ -92,6 +93,14 @@ Elm.AgilityPlan.make = function (_elm) {
          hurdleforms);
       }();
    };
+   var firstFreeNum = F2(function (nums,
+   candidate) {
+      return A2($Set.member,
+      candidate,
+      nums) ? A2(firstFreeNum,
+      nums,
+      candidate + 1) : candidate;
+   });
    var init = F2(function (fieldW,
    fieldH) {
       return {_: {}
@@ -119,6 +128,11 @@ Elm.AgilityPlan.make = function (_elm) {
    var SelectHurdle = function (a) {
       return {ctor: "SelectHurdle"
              ,_0: a};
+   };
+   var Remove = {ctor: "Remove"};
+   var AddNumber = {ctor: "AddNumber"};
+   var Add = function (a) {
+      return {ctor: "Add",_0: a};
    };
    var update = F2(function (action,
    model) {
@@ -149,17 +163,36 @@ Elm.AgilityPlan.make = function (_elm) {
                                                                 ,model.nextId + 1]],
                  model));
               }();
+            case "AddNumber":
+            return function () {
+                 var nums = $Set.fromList(A2($List.filterMap,
+                 function (phurdle) {
+                    return function () {
+                       var _v12 = phurdle.hurdle;
+                       switch (_v12.ctor)
+                       {case "Number":
+                          return $Maybe.Just(_v12._0);}
+                       return $Maybe.Nothing;
+                    }();
+                 },
+                 $Dict.values(model.hurdles)));
+                 return A2(update,
+                 Add($Hurdle.Number(A2(firstFreeNum,
+                 nums,
+                 1))),
+                 model);
+              }();
             case "Arrow":
             return function () {
-                 var _v12 = model.selectedHurdle;
-                 switch (_v12.ctor)
+                 var _v14 = model.selectedHurdle;
+                 switch (_v14.ctor)
                  {case "Just":
                     return function () {
                          var _raw = A2($Dict.get,
-                         _v12._0,
+                         _v14._0,
                          model.hurdles),
                          $ = _raw.ctor === "Just" ? _raw : _U.badCase($moduleName,
-                         "on line 110, column 36 to 61"),
+                         "on line 125, column 36 to 61"),
                          h = $._0;
                          var $ = h.pos,x = $._0,y = $._1;
                          return update(Move({ctor: "_Tuple2"
@@ -168,21 +201,21 @@ Elm.AgilityPlan.make = function (_elm) {
                       }();
                     case "Nothing": return model;}
                  _U.badCase($moduleName,
-                 "between lines 107 and 114");
+                 "between lines 122 and 129");
               }();
             case "Move":
             switch (action._0.ctor)
               {case "_Tuple2":
                  return function () {
-                      var _v14 = model.selectedHurdle;
-                      switch (_v14.ctor)
+                      var _v16 = model.selectedHurdle;
+                      switch (_v16.ctor)
                       {case "Just":
                          return _U.replace([["hurdles"
                                             ,A3($Dict.update,
-                                            _v14._0,
-                                            function (_v16) {
+                                            _v16._0,
+                                            function (_v18) {
                                                return function () {
-                                                  switch (_v16.ctor)
+                                                  switch (_v18.ctor)
                                                   {case "Just":
                                                      return function () {
                                                           var ny = action._0._1;
@@ -196,59 +229,59 @@ Elm.AgilityPlan.make = function (_elm) {
                                                                                          A2($Transform2D.translation,
                                                                                          nx,
                                                                                          ny),
-                                                                                         $Transform2D.rotation($Basics.degrees(_v16._0.angle)))]
+                                                                                         $Transform2D.rotation($Basics.degrees(_v18._0.angle)))]
                                                                                         ,["t$"
                                                                                          ,A2($Transform2D.multiply,
-                                                                                         $Transform2D.rotation($Basics.degrees(0 - _v16._0.angle)),
+                                                                                         $Transform2D.rotation($Basics.degrees(0 - _v18._0.angle)),
                                                                                          A2($Transform2D.translation,
                                                                                          0 - nx,
                                                                                          0 - ny))]],
-                                                          _v16._0));
+                                                          _v18._0));
                                                        }();}
                                                   _U.badCase($moduleName,
-                                                  "between lines 73 and 84");
+                                                  "between lines 88 and 99");
                                                }();
                                             },
                                             model.hurdles)]],
                            model);
                          case "Nothing": return model;}
                       _U.badCase($moduleName,
-                      "between lines 69 and 87");
+                      "between lines 84 and 102");
                    }();}
               break;
             case "Remove":
             return function () {
-                 var _v19 = model.selectedHurdle;
-                 switch (_v19.ctor)
+                 var _v21 = model.selectedHurdle;
+                 switch (_v21.ctor)
                  {case "Just":
                     return _U.replace([["hurdles"
                                        ,A2($Dict.remove,
-                                       _v19._0,
+                                       _v21._0,
                                        model.hurdles)]
                                       ,["selectedHurdle"
                                        ,$Maybe.Nothing]],
                       model);
                     case "Nothing": return model;}
                  _U.badCase($moduleName,
-                 "between lines 57 and 66");
+                 "between lines 72 and 81");
               }();
             case "Rotate":
             return function () {
-                 var _v21 = model.selectedHurdle;
-                 switch (_v21.ctor)
+                 var _v23 = model.selectedHurdle;
+                 switch (_v23.ctor)
                  {case "Just":
                     return _U.replace([["hurdles"
                                        ,A3($Dict.update,
-                                       _v21._0,
-                                       function (_v23) {
+                                       _v23._0,
+                                       function (_v25) {
                                           return function () {
-                                             switch (_v23.ctor)
+                                             switch (_v25.ctor)
                                              {case "Just":
                                                 return function () {
-                                                     var $ = _v23._0.pos,
+                                                     var $ = _v25._0.pos,
                                                      nx = $._0,
                                                      ny = $._1;
-                                                     var angle = _v23._0.angle + action._0;
+                                                     var angle = _v25._0.angle + action._0;
                                                      return $Maybe.Just(_U.replace([["angle"
                                                                                     ,angle]
                                                                                    ,["t"
@@ -263,30 +296,26 @@ Elm.AgilityPlan.make = function (_elm) {
                                                                                     A2($Transform2D.translation,
                                                                                     0 - nx,
                                                                                     0 - ny))]],
-                                                     _v23._0));
+                                                     _v25._0));
                                                   }();}
                                              _U.badCase($moduleName,
-                                             "between lines 92 and 103");
+                                             "between lines 107 and 118");
                                           }();
                                        },
                                        model.hurdles)]],
                       model);
                     case "Nothing": return model;}
                  _U.badCase($moduleName,
-                 "between lines 88 and 106");
+                 "between lines 103 and 121");
               }();
             case "SelectHurdle":
             return _U.replace([["selectedHurdle"
                                ,$Maybe.Just(action._0)]],
               model);}
          _U.badCase($moduleName,
-         "between lines 41 and 114");
+         "between lines 48 and 129");
       }();
    });
-   var Remove = {ctor: "Remove"};
-   var Add = function (a) {
-      return {ctor: "Add",_0: a};
-   };
    var Model = F4(function (a,
    b,
    c,
@@ -309,6 +338,7 @@ Elm.AgilityPlan.make = function (_elm) {
                              ,view: view
                              ,Model: Model
                              ,Add: Add
+                             ,AddNumber: AddNumber
                              ,Remove: Remove
                              ,SelectHurdle: SelectHurdle
                              ,Move: Move
@@ -2947,11 +2977,13 @@ Elm.Hurdle.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Hurdle",
    $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $Text = Elm.Text.make(_elm);
    var circlePoint = F2(function (r,
    theta) {
       return {ctor: "_Tuple2"
@@ -2977,6 +3009,12 @@ Elm.Hurdle.make = function (_elm) {
                     return _U.cmp($Basics.abs(_v0._0),
                       10) < 0 && _U.cmp($Basics.abs(_v0._1),
                       85) < 0;
+                    case "Number":
+                    return function () {
+                         var r = $Basics.sqrt(Math.pow(_v0._0,
+                         2) + Math.pow(_v0._1,2));
+                         return _U.cmp(r,20) < 1;
+                      }();
                     case "TireJump":
                     return _U.cmp($Basics.abs(_v0._0),
                       20) < 0 && _U.cmp($Basics.abs(_v0._1),
@@ -2996,7 +3034,7 @@ Elm.Hurdle.make = function (_elm) {
                  return false;
               }();}
          _U.badCase($moduleName,
-         "between lines 95 and 112");
+         "between lines 111 and 132");
       }();
    });
    var view = function (hurdle) {
@@ -3071,6 +3109,23 @@ Elm.Hurdle.make = function (_elm) {
                  return A2($List._op["::"],
                  path,
                  supports$);
+              }();
+            case "Number":
+            return function () {
+                 var t = $Graphics$Collage.moveY(3)($Graphics$Collage.text($Text.height(20)($Text.bold($Text.fromString($Basics.toString(hurdle._0))))));
+                 var c = $Graphics$Collage.circle(20);
+                 var cOutline = A2($Graphics$Collage.outlined,
+                 _U.replace([["cap"
+                             ,$Graphics$Collage.Padded]
+                            ,["width",4]],
+                 $Graphics$Collage.defaultLine),
+                 c);
+                 var cFill = A2($Graphics$Collage.filled,
+                 $Color.white,
+                 c);
+                 return _L.fromArray([cOutline
+                                     ,cFill
+                                     ,t]);
               }();
             case "TireJump":
             return function () {
@@ -3185,6 +3240,10 @@ Elm.Hurdle.make = function (_elm) {
          return _L.fromArray([]);
       }();
    };
+   var Number = function (a) {
+      return {ctor: "Number"
+             ,_0: a};
+   };
    var CollapsedTunnel = {ctor: "CollapsedTunnel"};
    var CurvedTunnel = function (a) {
       return {ctor: "CurvedTunnel"
@@ -3224,7 +3283,8 @@ Elm.Hurdle.make = function (_elm) {
                         ,TeeterTooter: TeeterTooter
                         ,Tunnel: Tunnel
                         ,CurvedTunnel: CurvedTunnel
-                        ,CollapsedTunnel: CollapsedTunnel};
+                        ,CollapsedTunnel: CollapsedTunnel
+                        ,Number: Number};
    return _elm.Hurdle.values;
 };Elm.Keyboard = Elm.Keyboard || {};
 Elm.Keyboard.make = function (_elm) {
@@ -3811,7 +3871,7 @@ Elm.Main.make = function (_elm) {
                               break;}
                          break;}
                     _U.badCase($moduleName,
-                    "on line 216, column 28 to 58");
+                    "on line 234, column 28 to 58");
                  }();
                  var ftop = function () {
                     switch (_.ctor)
@@ -3825,7 +3885,7 @@ Elm.Main.make = function (_elm) {
                               break;}
                          break;}
                     _U.badCase($moduleName,
-                    "on line 216, column 28 to 58");
+                    "on line 234, column 28 to 58");
                  }();
                  var fw = function () {
                     switch (_.ctor)
@@ -3839,7 +3899,7 @@ Elm.Main.make = function (_elm) {
                               break;}
                          break;}
                     _U.badCase($moduleName,
-                    "on line 216, column 28 to 58");
+                    "on line 234, column 28 to 58");
                  }();
                  var scalingFactor = A2($Basics.min,
                  fw / (model.grid.w + 20),
@@ -3865,7 +3925,7 @@ Elm.Main.make = function (_elm) {
                         ,_1: t$};
               }();}
          _U.badCase($moduleName,
-         "between lines 215 and 233");
+         "between lines 233 and 251");
       }();
    });
    var fitWindowTransforms = F2(function (model,
@@ -3900,7 +3960,7 @@ Elm.Main.make = function (_elm) {
                               break;}
                          break;}
                     _U.badCase($moduleName,
-                    "on line 194, column 22 to 47");
+                    "on line 212, column 22 to 47");
                  }();
                  var fw = function () {
                     switch (_.ctor)
@@ -3911,7 +3971,7 @@ Elm.Main.make = function (_elm) {
                               break;}
                          break;}
                     _U.badCase($moduleName,
-                    "on line 194, column 22 to 47");
+                    "on line 212, column 22 to 47");
                  }();
                  var scalingFactor = A2($Basics.min,
                  fw / (model.grid.w + 20),
@@ -3935,7 +3995,7 @@ Elm.Main.make = function (_elm) {
                         ,_1: t$};
               }();}
          _U.badCase($moduleName,
-         "between lines 193 and 210");
+         "between lines 211 and 228");
       }();
    });
    var fieldClick = $Signal.mailbox({ctor: "_Tuple0"});
@@ -3975,7 +4035,7 @@ Elm.Main.make = function (_elm) {
                                    break;}
                               break;}
                          _U.badCase($moduleName,
-                         "on line 118, column 27 to 49");
+                         "on line 131, column 27 to 49");
                       }();
                       var y$ = function () {
                          switch (_.ctor)
@@ -3986,7 +4046,7 @@ Elm.Main.make = function (_elm) {
                                    break;}
                               break;}
                          _U.badCase($moduleName,
-                         "on line 118, column 27 to 49");
+                         "on line 131, column 27 to 49");
                       }();
                       var p = A3($Transform2DApply.applyTransform2D,
                       model.t$,
@@ -4002,10 +4062,60 @@ Elm.Main.make = function (_elm) {
                       model);
                    }();}
               break;
+            case "AddNumber":
+            switch (action._0.ctor)
+              {case "_Tuple2":
+                 return function () {
+                      var _ = A2($List.map,
+                      $Basics.toFloat,
+                      _L.fromArray([action._0._0
+                                   ,action._0._1]));
+                      var x$ = function () {
+                         switch (_.ctor)
+                         {case "::": switch (_._1.ctor)
+                              {case "::":
+                                 switch (_._1._1.ctor)
+                                   {case "[]": return _._0;}
+                                   break;}
+                              break;}
+                         _U.badCase($moduleName,
+                         "on line 122, column 27 to 49");
+                      }();
+                      var y$ = function () {
+                         switch (_.ctor)
+                         {case "::": switch (_._1.ctor)
+                              {case "::":
+                                 switch (_._1._1.ctor)
+                                   {case "[]": return _._1._0;}
+                                   break;}
+                              break;}
+                         _U.badCase($moduleName,
+                         "on line 122, column 27 to 49");
+                      }();
+                      var p = A3($Transform2DApply.applyTransform2D,
+                      model.t$,
+                      x$,
+                      y$);
+                      return _U.replace([["plan"
+                                         ,A3($List.foldl,
+                                         $AgilityPlan.update,
+                                         model.plan,
+                                         _L.fromArray([$AgilityPlan.AddNumber
+                                                      ,$AgilityPlan.Move(p)]))]
+                                        ,["dropdown",$Maybe.Nothing]],
+                      model);
+                   }();}
+              break;
             case "Arrow":
             return _U.replace([["plan"
                                ,A2($AgilityPlan.update,
                                $AgilityPlan.Rotate(-1 * $Basics.toFloat(action._0.x)),
+                               model.plan)]],
+              model);
+            case "Del":
+            return _U.replace([["plan"
+                               ,A2($AgilityPlan.update,
+                               $AgilityPlan.Remove,
                                model.plan)]],
               model);
             case "Drag":
@@ -4019,16 +4129,16 @@ Elm.Main.make = function (_elm) {
                       xf = $._0,
                       yf = $._1;
                       return function () {
-                         var _v65 = model.drag;
-                         switch (_v65.ctor)
+                         var _v78 = model.drag;
+                         switch (_v78.ctor)
                          {case "Just":
-                            switch (_v65._0.ctor)
+                            switch (_v78._0.ctor)
                               {case "_Tuple2":
                                  return _U.replace([["plan"
                                                     ,A2($AgilityPlan.update,
                                                     $AgilityPlan.Move({ctor: "_Tuple2"
-                                                                      ,_0: xf - _v65._0._0
-                                                                      ,_1: yf - _v65._0._1}),
+                                                                      ,_0: xf - _v78._0._0
+                                                                      ,_1: yf - _v78._0._1}),
                                                     model.plan)]],
                                    model);}
                               break;}
@@ -4048,8 +4158,8 @@ Elm.Main.make = function (_elm) {
                          switch (action._0)
                          {case false:
                             return function () {
-                                 var _v70 = model.drag;
-                                 switch (_v70.ctor)
+                                 var _v83 = model.drag;
+                                 switch (_v83.ctor)
                                  {case "Just":
                                     return _U.replace([["drag"
                                                        ,$Maybe.Nothing]],
@@ -4092,8 +4202,8 @@ Elm.Main.make = function (_elm) {
                                        case "Nothing":
                                        return _U.replace([["dropdown"
                                                           ,function () {
-                                                             var _v79 = model.dropdown;
-                                                             switch (_v79.ctor)
+                                                             var _v92 = model.dropdown;
+                                                             switch (_v92.ctor)
                                                              {case "Nothing":
                                                                 return $Maybe.Just({ctor: "_Tuple2"
                                                                                    ,_0: action._1._0
@@ -4102,11 +4212,11 @@ Elm.Main.make = function (_elm) {
                                                           }()]],
                                          model);}
                                     _U.badCase($moduleName,
-                                    "between lines 89 and 99");
+                                    "between lines 91 and 101");
                                  }();
                               }();}
                          _U.badCase($moduleName,
-                         "between lines 75 and 103");
+                         "between lines 77 and 105");
                       }();
                    }();}
               break;
@@ -4166,6 +4276,19 @@ Elm.Main.make = function (_elm) {
               ,windowSize: {ctor: "_Tuple2"
                            ,_0: 1000
                            ,_1: 1000}};
+   var AddNumber = function (a) {
+      return {ctor: "AddNumber"
+             ,_0: a};
+   };
+   var Del = {ctor: "Del"};
+   var delPress = A2($Signal.map,
+   function (i) {
+      return Del;
+   },
+   A3($Signal.filter,
+   $Basics.identity,
+   false,
+   $Keyboard.isDown(46)));
    var Esc = {ctor: "Esc"};
    var escPress = A2($Signal.map,
    function (i) {
@@ -4181,23 +4304,23 @@ Elm.Main.make = function (_elm) {
    var dragMove = function () {
       var downup = $Signal.dropRepeats($Mouse.isDown);
       return A2($Signal.map,
-      function (_v80) {
+      function (_v93) {
          return function () {
-            switch (_v80.ctor)
+            switch (_v93.ctor)
             {case "_Tuple2":
-               return Drag(_v80._1);}
+               return Drag(_v93._1);}
             _U.badCase($moduleName,
-            "on line 142, column 37 to 43");
+            "on line 155, column 37 to 43");
          }();
       },
       A3($Signal.filter,
-      function (_v84) {
+      function (_v97) {
          return function () {
-            switch (_v84.ctor)
+            switch (_v97.ctor)
             {case "_Tuple2":
-               return _v84._0;}
+               return _v97._0;}
             _U.badCase($moduleName,
-            "on line 143, column 45 to 51");
+            "on line 156, column 45 to 51");
          }();
       },
       {ctor: "_Tuple2"
@@ -4223,15 +4346,15 @@ Elm.Main.make = function (_elm) {
    var dragStartStop = function () {
       var downup = $Signal.dropRepeats($Mouse.isDown);
       return A2($Signal.map,
-      function (_v88) {
+      function (_v101) {
          return function () {
-            switch (_v88.ctor)
+            switch (_v101.ctor)
             {case "_Tuple2":
                return A2(DragStartStop,
-                 _v88._0,
-                 _v88._1);}
+                 _v101._0,
+                 _v101._1);}
             _U.badCase($moduleName,
-            "on line 150, column 37 to 59");
+            "on line 163, column 37 to 59");
          }();
       },
       A2($Signal.sampleOn,
@@ -4269,17 +4392,17 @@ Elm.Main.make = function (_elm) {
          w = $._0,
          h = $._1;
          var dt = function () {
-            var _v92 = wm.dropdown;
-            switch (_v92.ctor)
+            var _v105 = wm.dropdown;
+            switch (_v105.ctor)
             {case "Just":
-               switch (_v92._0.ctor)
+               switch (_v105._0.ctor)
                  {case "_Tuple2":
                     return _L.fromArray([A4($Graphics$Element.container,
                       w,
                       h,
                       A2($Graphics$Element.middleAt,
-                      $Graphics$Element.absolute(_v92._0._0),
-                      $Graphics$Element.absolute(_v92._0._1)),
+                      $Graphics$Element.absolute(_v105._0._0),
+                      $Graphics$Element.absolute(_v105._0._1)),
                       A2($Graphics$Element.flow,
                       $Graphics$Element.down,
                       _L.fromArray([A2($Graphics$Input.button,
@@ -4288,8 +4411,8 @@ Elm.Main.make = function (_elm) {
                                    A2(AddHurdle,
                                    $Hurdle.Jump,
                                    {ctor: "_Tuple2"
-                                   ,_0: _v92._0._0
-                                   ,_1: _v92._0._1})),
+                                   ,_0: _v105._0._0
+                                   ,_1: _v105._0._1})),
                                    "Jump")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
@@ -4297,8 +4420,8 @@ Elm.Main.make = function (_elm) {
                                    A2(AddHurdle,
                                    $Hurdle.TireJump,
                                    {ctor: "_Tuple2"
-                                   ,_0: _v92._0._0
-                                   ,_1: _v92._0._1})),
+                                   ,_0: _v105._0._0
+                                   ,_1: _v105._0._1})),
                                    "Tire jump")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
@@ -4306,8 +4429,8 @@ Elm.Main.make = function (_elm) {
                                    A2(AddHurdle,
                                    $Hurdle.WeavePoles(10),
                                    {ctor: "_Tuple2"
-                                   ,_0: _v92._0._0
-                                   ,_1: _v92._0._1})),
+                                   ,_0: _v105._0._0
+                                   ,_1: _v105._0._1})),
                                    "Weave poles")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
@@ -4315,8 +4438,8 @@ Elm.Main.make = function (_elm) {
                                    A2(AddHurdle,
                                    $Hurdle.Tunnel(450),
                                    {ctor: "_Tuple2"
-                                   ,_0: _v92._0._0
-                                   ,_1: _v92._0._1})),
+                                   ,_0: _v105._0._0
+                                   ,_1: _v105._0._1})),
                                    "Tunnel")
                                    ,A2($Graphics$Input.button,
                                    A2($Signal.message,
@@ -4324,14 +4447,21 @@ Elm.Main.make = function (_elm) {
                                    A2(AddHurdle,
                                    $Hurdle.CurvedTunnel(120),
                                    {ctor: "_Tuple2"
-                                   ,_0: _v92._0._0
-                                   ,_1: _v92._0._1})),
-                                   "Curved tunnel")])))]);}
+                                   ,_0: _v105._0._0
+                                   ,_1: _v105._0._1})),
+                                   "Curved tunnel")
+                                   ,A2($Graphics$Input.button,
+                                   A2($Signal.message,
+                                   winAction.address,
+                                   AddNumber({ctor: "_Tuple2"
+                                             ,_0: _v105._0._0
+                                             ,_1: _v105._0._1})),
+                                   "Sequence number")])))]);}
                  break;
                case "Nothing":
                return _L.fromArray([]);}
             _U.badCase($moduleName,
-            "between lines 241 and 252");
+            "between lines 259 and 271");
          }();
          var model = A2($Debug.watch,
          "model",
@@ -4394,7 +4524,8 @@ Elm.Main.make = function (_elm) {
                                                    ,winAction.signal
                                                    ,dragStartStop
                                                    ,dragMove
-                                                   ,escPress]));
+                                                   ,escPress
+                                                   ,delPress]));
       var updateLoop = A3($Signal.foldp,
       update,
       init,
@@ -4427,6 +4558,8 @@ Elm.Main.make = function (_elm) {
                       ,DragStartStop: DragStartStop
                       ,Drag: Drag
                       ,Esc: Esc
+                      ,Del: Del
+                      ,AddNumber: AddNumber
                       ,init: init
                       ,update: update
                       ,model: model
@@ -4436,6 +4569,7 @@ Elm.Main.make = function (_elm) {
                       ,arrowSignals: arrowSignals
                       ,keySignals: keySignals
                       ,escPress: escPress
+                      ,delPress: delPress
                       ,main: main
                       ,fieldClick: fieldClick
                       ,winAction: winAction
