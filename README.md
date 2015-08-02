@@ -5,11 +5,11 @@ A exercise project for learning [Elm](http://elm-lang.org/)
 ## Usage
 
 - click empty space to add hurdle
-- click hurdle to select
+- click hurdle to select it
+- drag to move a hurdle
 - keys
-    - 'd' - delete selected hurdle
-    - 'z' - rotate selected hurdle counterclockwise
-    - 'x' - rotate selected hurdle clockwise
-    - arrows - move selected hurdle
+    - 'd' deletes selected hurdle
+    - left and right arrows rotate selected hurdle
+    - 'esc' closes popup menu
 
 You can try it [here](http://juranki.github.io/agilityplan/) (works best with Chrome)
