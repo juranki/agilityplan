@@ -33,6 +33,7 @@ type WindowAction = WindowSize (Int, Int)
                   | Drag (Int, Int)
                   | Esc
                   | Del
+                  | AddNumber (Int, Int)
 
 init : WindowModel
 init =
@@ -116,6 +117,15 @@ update action model =
                     | s == "'d'" -> AgilityPlan.update (AgilityPlan.Remove) model.plan
                     | otherwise -> model.plan
                 }
+        AddNumber (x,y) ->
+            let
+                [x',y'] = List.map toFloat [x,y]
+                p = applyTransform2D model.t' x' y'
+            in
+                { model | plan <- List.foldl AgilityPlan.update model.plan
+                            [ AgilityPlan.AddNumber
+                            , AgilityPlan.Move p ]
+                        , dropdown <- Nothing }
         AddHurdle hurdle (x,y) ->
             let
                 [x',y'] = List.map toFloat [x,y]
@@ -255,6 +265,7 @@ view wm =
                                     , button (Signal.message winAction.address (AddHurdle (WeavePoles 10) (x,y))) "Weave poles"
                                     , button (Signal.message winAction.address (AddHurdle (Tunnel 450) (x,y))) "Tunnel"
                                     , button (Signal.message winAction.address (AddHurdle (CurvedTunnel 120) (x,y))) "Curved tunnel"
+                                    , button (Signal.message winAction.address (AddNumber (x,y))) "Sequence number"
                                     ])]
                 Nothing -> []
     in

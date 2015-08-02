@@ -1,6 +1,8 @@
 module Hurdle(Hurdle(..), view, hitTest) where
 
 import Graphics.Collage exposing (..)
+import Text
+import Color
 
 type Hurdle = Jump
             | DoubleJump
@@ -16,6 +18,7 @@ type Hurdle = Jump
             | Tunnel Float
             | CurvedTunnel Float
             | CollapsedTunnel
+            | Number Int
 
 view: Hurdle -> List Form
 view hurdle =
@@ -87,6 +90,19 @@ view hurdle =
                 ovals' = List.map2 moveX [-r, r] ovals
             in
                 lines ++ ovals'
+        Number n ->
+            let
+                c = circle 20
+                cOutline = outlined {defaultLine | cap <- Padded, width <- 4} c
+                cFill = filled Color.white c
+                t = n |> toString
+                      |> Text.fromString
+                      |> Text.bold
+                      |> Text.height 20
+                      |> text
+                      |> moveY 3
+            in
+                [cOutline, cFill, t]
         _ -> []
 
 
@@ -109,6 +125,10 @@ hitTest (x, y) hurdle =
             let r' = sqrt ((x^2) + (y^2))
             in
                 (y >= 0) && ((abs (r - r')) < 30)
+        Number _ ->
+            let r = sqrt ((x^2) + (y^2))
+            in
+                r <= 20
         _ -> False
 
 circlePoint : Float -> Float -> (Float, Float)

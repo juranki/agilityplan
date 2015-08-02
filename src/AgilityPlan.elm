@@ -2,11 +2,12 @@ module AgilityPlan (Action(..), Model, init, update, view) where
 
 import Dict exposing (Dict)
 import Transform2D
-import Hurdle exposing (Hurdle)
+import Hurdle exposing (Hurdle(..))
 import PositionedHurdle exposing (PositionedHurdle)
 import Graphics.Collage exposing (..)
 import Color exposing (..)
 import Debug
+import Set
 
 type alias ID = Int
 type alias Grid = { w: Float
@@ -20,6 +21,7 @@ type alias Model = { hurdles: Dict ID PositionedHurdle
                    }
 
 type Action = Add Hurdle
+            | AddNumber
             | Remove
             | SelectHurdle ID
             | Move (Float, Float)
@@ -36,9 +38,22 @@ init fieldW fieldH =
     , selectedHurdle = Nothing
     }
 
+firstFreeNum : Set.Set Int -> Int -> Int
+firstFreeNum nums candidate =
+    if  | (Set.member candidate nums) -> firstFreeNum nums (candidate + 1)
+        | otherwise -> candidate
+
 update: Action -> Model -> Model
 update action model =
     case action of
+        AddNumber ->
+            let
+                nums = Set.fromList
+                        (List.filterMap (\phurdle -> case phurdle.hurdle of
+                                                Number n  -> Just n
+                                                _ -> Nothing) (Dict.values model.hurdles))
+            in
+                update (Add (Number (firstFreeNum nums 1))) model
         Add hurdle ->
             let
                 center = ( (model.grid.w / 2), (model.grid.h / 2) )
