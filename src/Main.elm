@@ -102,7 +102,7 @@ update action model =
 
         Arrow direction ->
             { model | plan <- AgilityPlan.update
-                                (AgilityPlan.Rotate (-2 * (toFloat direction.x)))
+                                (AgilityPlan.Rotate (-1 * (toFloat direction.x)))
                                 model.plan }
         Keypress s ->
             {model | plan <-
@@ -152,7 +152,7 @@ dragStartStop =
 arrowSignals =
     Signal.map Arrow
         (Signal.filter (\d -> (d.x /= 0) || (d.y /= 0)) {x=0,y=0}
-            (Signal.sampleOn (Time.fps 30) Keyboard.arrows))
+            (Signal.sampleOn (Time.fps 50) Keyboard.arrows))
 keySignals =
     Signal.map (\i -> Debug.watch "key" (Keypress (toString (Char.fromCode i)))) Keyboard.presses
 
