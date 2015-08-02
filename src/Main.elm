@@ -32,6 +32,7 @@ type WindowAction = WindowSize (Int, Int)
                   | DragStartStop Bool (Int, Int)
                   | Drag (Int, Int)
                   | Esc
+                  | Del
 
 init : WindowModel
 init =
@@ -102,6 +103,8 @@ update action model =
                             _ -> model
         Esc ->
             { model | dropdown <- Nothing }
+        Del ->
+            {model | plan <- AgilityPlan.update (AgilityPlan.Remove) model.plan }
         Arrow direction ->
             { model | plan <- AgilityPlan.update
                                 (AgilityPlan.Rotate (-1 * (toFloat direction.x)))
@@ -162,6 +165,10 @@ escPress =
     Signal.map (\i -> Esc)
         (Signal.filter identity False (Keyboard.isDown 27))
 
+delPress =
+    Signal.map (\i -> Del)
+        (Signal.filter identity False (Keyboard.isDown 46))
+
 main : Signal Element
 main =
     let
@@ -172,7 +179,8 @@ main =
                                    , winAction.signal
                                    , dragStartStop
                                    , dragMove
-                                   , escPress ]
+                                   , escPress
+                                   , delPress ]
         updateLoop = Signal.foldp update init actions
     in
         Signal.map view updateLoop
