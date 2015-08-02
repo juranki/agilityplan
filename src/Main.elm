@@ -16,7 +16,7 @@ import Char
 import Time
 
 type alias WindowModel =
-    { model : AgilityPlan.Model
+    { plan : AgilityPlan.Model
     , windowSize : (Int, Int)
     , t : T2D.Transform2D
     , t' : T2D.Transform2D
@@ -31,7 +31,7 @@ type WindowAction = WindowSize (Int, Int)
 
 init : WindowModel
 init =
-    { model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
+    { plan = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
                 [ Add Jump
                 , Move (100, 200)
                 , Add TireJump
@@ -49,7 +49,7 @@ update action model =
     case action of
         WindowSize s ->
             let
-                (t, t') = fitWindowTransforms model.model s
+                (t, t') = fitWindowTransforms model.plan s
             in
                 { model | windowSize <- s
                         , t <- t
@@ -60,32 +60,32 @@ update action model =
                 fy = toFloat y
                 p = applyTransform2D model.t' fx fy
                 hurdle = List.head
-                    (List.filter (PositionedHurdle.hitTest p) (Dict.toList model.model.hurdles))
+                    (List.filter (PositionedHurdle.hitTest p) (Dict.toList model.plan.hurdles))
             in
                 case hurdle of
                     Nothing -> { model | dropdown <- Just (x,y) }
                     Just (id, _) ->
-                        { model | model <- AgilityPlan.update
+                        { model | plan <- AgilityPlan.update
                                             (AgilityPlan.SelectHurdle id)
-                                            model.model
+                                            model.plan
                                 , dropdown <- Nothing }
         Arrow direction ->
-            { model | model <- AgilityPlan.update
+            { model | plan <- AgilityPlan.update
                                 (AgilityPlan.Arrow direction)
-                                model.model }
+                                model.plan }
         Keypress s ->
-            {model | model <-
-                if  | s == "'z'" -> AgilityPlan.update (AgilityPlan.Rotate 10) model.model
-                    | s == "'x'" -> AgilityPlan.update (AgilityPlan.Rotate -10) model.model
-                    | s == "'d'" -> AgilityPlan.update (AgilityPlan.Remove) model.model
-                    | otherwise -> model.model
+            {model | plan <-
+                if  | s == "'z'" -> AgilityPlan.update (AgilityPlan.Rotate 10) model.plan
+                    | s == "'x'" -> AgilityPlan.update (AgilityPlan.Rotate -10) model.plan
+                    | s == "'d'" -> AgilityPlan.update (AgilityPlan.Remove) model.plan
+                    | otherwise -> model.plan
                 }
         AddHurdle hurdle (x,y) ->
             let
                 [x',y'] = List.map toFloat [x,y]
                 p = applyTransform2D model.t' x' y'
             in
-                { model | model <- List.foldl AgilityPlan.update model.model
+                { model | plan <- List.foldl AgilityPlan.update model.plan
                             [ AgilityPlan.Add hurdle
                             , AgilityPlan.Move p ]
                         , dropdown <- Nothing }
@@ -178,7 +178,7 @@ fit model (w, h, top) s =
 view : WindowModel -> Element
 view wm =
     let
-        model = wm.model
+        model = wm.plan
         pos = show model.selectedHurdle
         (w, h) = wm.windowSize
         dt = case wm.dropdown of
