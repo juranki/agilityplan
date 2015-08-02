@@ -31,6 +31,7 @@ type WindowAction = WindowSize (Int, Int)
                   | AddHurdle Hurdle (Int, Int)
                   | DragStartStop Bool (Int, Int)
                   | Drag (Int, Int)
+                  | Esc
 
 init : WindowModel
 init =
@@ -99,7 +100,8 @@ update action model =
                         case model.drag of
                             Just _ ->  { model | drag <- Nothing }
                             _ -> model
-
+        Esc ->
+            { model | dropdown <- Nothing }
         Arrow direction ->
             { model | plan <- AgilityPlan.update
                                 (AgilityPlan.Rotate (-1 * (toFloat direction.x)))
@@ -156,6 +158,10 @@ arrowSignals =
 keySignals =
     Signal.map (\i -> Debug.watch "key" (Keypress (toString (Char.fromCode i)))) Keyboard.presses
 
+escPress =
+    Signal.map (\i -> Esc)
+        (Signal.filter identity False (Keyboard.isDown 27))
+
 main : Signal Element
 main =
     let
@@ -165,7 +171,8 @@ main =
                                    , keySignals
                                    , winAction.signal
                                    , dragStartStop
-                                   , dragMove ]
+                                   , dragMove
+                                   , escPress ]
         updateLoop = Signal.foldp update init actions
     in
         Signal.map view updateLoop
