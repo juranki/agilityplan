@@ -21,6 +21,7 @@ type alias WindowModel =
     , t : T2D.Transform2D
     , t' : T2D.Transform2D
     , dropdown : Maybe (Int, Int)
+    , drag : Maybe (Float, Float)
     }
 
 type WindowAction = WindowSize (Int, Int)
@@ -28,6 +29,8 @@ type WindowAction = WindowSize (Int, Int)
                   | Arrow { x:Int, y:Int }
                   | Keypress String
                   | AddHurdle Hurdle (Int, Int)
+                  | DragStartStop Bool (Int, Int)
+                  | Drag (Int, Int)
 
 init : WindowModel
 init =
@@ -42,6 +45,7 @@ init =
     , t = T2D.identity
     , t' = T2D.identity
     , dropdown = Nothing
+    , drag = Nothing
     }
 
 update : WindowAction -> WindowModel -> WindowModel
@@ -54,24 +58,51 @@ update action model =
                 { model | windowSize <- s
                         , t <- t
                         , t' <- t' }
-        Click (x, y) ->
+        Drag (x,y) ->
             let
-                fx = toFloat x
-                fy = toFloat y
-                p = applyTransform2D model.t' fx fy
-                hurdle = List.head
-                    (List.filter (PositionedHurdle.hitTest p) (Dict.toList model.plan.hurdles))
+                (xf, yf) = applyTransform2D model.t' (toFloat x) (toFloat y)
             in
-                case hurdle of
-                    Nothing -> { model | dropdown <- Just (x,y) }
-                    Just (id, _) ->
-                        { model | plan <- AgilityPlan.update
-                                            (AgilityPlan.SelectHurdle id)
-                                            model.plan
-                                , dropdown <- Nothing }
+                case model.drag of
+                    Just (xf', yf') ->
+                        { model | plan <- AgilityPlan.update (AgilityPlan.Move (xf - xf', yf - yf'))
+                                                             model.plan}
+                    _ -> model
+        DragStartStop isdown (x, y) ->
+            let
+                p = applyTransform2D model.t' (toFloat x) (toFloat y)
+            in
+                case isdown of
+                    True ->
+                        let
+                            notNothing = (\m -> case m of
+                                                    Nothing -> False
+                                                    _ -> True)
+
+                            hurdle =
+                                List.head
+                                    (List.filter notNothing
+                                        (List.map (PositionedHurdle.hitTest p)
+                                            (Dict.toList model.plan.hurdles)))
+                        in
+                        --    model
+                            case hurdle of
+                                Nothing -> { model | dropdown <- case model.dropdown of
+                                                                    Nothing -> Just (x,y)
+                                                                    _ -> model.dropdown }
+                                --_ -> model
+                                Just (Just (id, x', y')) -> --model
+                                    { model | plan <- AgilityPlan.update (AgilityPlan.SelectHurdle id)
+                                                                         model.plan
+                                            , dropdown <- Nothing
+                                            , drag <- Just (x', y') }
+                    False ->
+                        case model.drag of
+                            Just _ ->  { model | drag <- Nothing }
+                            _ -> model
+
         Arrow direction ->
             { model | plan <- AgilityPlan.update
-                                (AgilityPlan.Arrow direction)
+                                (AgilityPlan.Rotate (-2 * (toFloat direction.x)))
                                 model.plan }
         Keypress s ->
             {model | plan <-
@@ -89,6 +120,7 @@ update action model =
                             [ AgilityPlan.Add hurdle
                             , AgilityPlan.Move p ]
                         , dropdown <- Nothing }
+        _ -> model
 
 model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
             [ Add Jump
@@ -100,6 +132,22 @@ model = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
 
 windowSignals =
     Signal.map (\w -> WindowSize w) Window.dimensions
+
+dragMove =
+    let
+        downup = Signal.dropRepeats Mouse.isDown
+    in
+        Signal.map (\(isdown, p) -> Drag p)
+            (Signal.filter (\(isdown, p) -> isdown) (False, (0,0))
+                (Signal.map2 (,) downup Mouse.position))
+
+dragStartStop =
+    let
+        downup = Signal.dropRepeats Mouse.isDown
+    in
+        Signal.map (\(isdown, p) -> DragStartStop isdown p)
+            (Signal.sampleOn downup
+                (Signal.map2 (,) downup Mouse.position))
 
 arrowSignals =
     Signal.map Arrow
@@ -115,7 +163,9 @@ main =
                                    , windowSignals
                                    , fieldClicks
                                    , keySignals
-                                   , winAction.signal ]
+                                   , winAction.signal
+                                   , dragStartStop
+                                   , dragMove ]
         updateLoop = Signal.foldp update init actions
     in
         Signal.map view updateLoop
@@ -178,7 +228,7 @@ fit model (w, h, top) s =
 view : WindowModel -> Element
 view wm =
     let
-        model = wm.plan
+        model = (Debug.watch "model" wm).plan
         pos = show model.selectedHurdle
         (w, h) = wm.windowSize
         dt = case wm.dropdown of
@@ -201,6 +251,5 @@ view wm =
                 form = groupTransform wm.t field
                 --(form, t) =  fit model (w, h, hpos) field
               in
-                clickable (Signal.message fieldClick.address ())
-                    (collage w h [form])
+                collage w h [form]
             ] ++ dt)

@@ -16,9 +16,12 @@ view: PositionedHurdle -> Form
 view  pHurdle =
     groupTransform pHurdle.t ( Hurdle.view pHurdle.hurdle)
 
-hitTest : (Float, Float) -> (Int, PositionedHurdle) -> Bool
-hitTest (x, y) (_, hurdle) =
+hitTest : (Float, Float) -> (Int, PositionedHurdle) -> Maybe (Int, Float, Float)
+hitTest (x, y) (id, hurdle) =
     let
         p = applyTransform2D hurdle.t' x y
+        isHit = Hurdle.hitTest p hurdle.hurdle
+        (x', y') = hurdle.pos
     in
-        Hurdle.hitTest p hurdle.hurdle
+        if  | isHit -> Just (id, x - x', y - y')
+            | otherwise -> Nothing
