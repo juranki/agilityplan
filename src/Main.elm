@@ -37,7 +37,7 @@ type WindowAction = WindowSize (Int, Int)
 
 init : WindowModel
 init =
-    { plan = List.foldl AgilityPlan.update (AgilityPlan.init 2000 1000)
+    { plan = List.foldl AgilityPlan.update (AgilityPlan.init 3000 1800)
                 [ Add Jump
                 , Move (100, 200)
                 , Add TireJump
